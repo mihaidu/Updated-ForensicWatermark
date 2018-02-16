@@ -1,0 +1,36 @@
+﻿apiVersion: batch/v1 
+kind: Job 
+metadata:
+  name: [JOBNAME] 
+spec: 
+    template:
+        metadata:
+            labels:
+                jobid: jobid-[JOBID] 
+        spec:
+            restartPolicy: Never
+            containers: 
+              - name: allinone-job
+                image: [IMAGENAME]
+                imagePullPolicy: Always
+                securityContext:
+                  privileged: true
+                env: 
+                  - name: LICENSES
+                    valueFrom:
+                        secretKeyRef:
+                             name: licenses
+                             key: licenses 
+                  - name: JOB 
+                    value:  [JOBBASE64] 
+                  - name: PARALLELEMBEDDERS 
+                    value:  "[PARALLELEMBEDDERS]" 
+                command: [ 'dotnet', 'embedder.dll' ]
+                volumeMounts:
+                - mountPath: /mnt
+                  name: tempdisk
+            volumes:
+            - name: tempdisk
+              hostPath:
+                path: /mnt
+                type: Directory
